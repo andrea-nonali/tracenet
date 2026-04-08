@@ -1,0 +1,179 @@
+version: '2'
+
+networks:
+    test:
+
+services:
+    cli:
+        container_name: cli
+        image: hyperledger/fabric-tools:$IMAGE_TAG
+        tty: true
+        stdin_open: true
+        networks:
+            - test
+        depends_on:
+            - peer0.rec0.tracenet.com
+            - peer0.obs0.tracenet.com
+            - peer0.prov0.tracenet.com
+        environment:
+            - GOPATH=/opt/gopath
+            - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+            - FABRIC_LOGGING_SPEC=${FABRIC_LOG}
+        working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+        command: /bin/bash
+
+
+    orderer.tracenet.com:
+        container_name: orderer.tracenet.com
+        extends:
+            file: docker-compose-base.yml
+            service: orderer-base
+        ports:
+            - 7050:7050
+            # - 7052:9443
+        networks:
+            - test
+        # depends_on:
+        #     # - orderer.${COMPOSE_PROJECT_NAME}.com
+        #     - crypto.tracenet.com
+        environment:
+            - CORE_OPERATIONS_LISTENADDRESS=orderer.${PROJECT_NAME}.com:9443
+        volumes:
+            - ../channels/genesis.block:/var/hyperledger/orderer/orderer.genesis.block
+            - ../organizations/ordererOrganizations/${PROJECT_NAME}.com/orderers/orderer.${PROJECT_NAME}.com/msp:/var/hyperledger/orderer/msp
+            - ../organizations/ordererOrganizations/${PROJECT_NAME}.com/orderers/orderer.${PROJECT_NAME}.com/tls/:/var/hyperledger/orderer/tls
+
+    couchdb0.rec0.tracenet.com:
+        container_name: couchdb0.rec0.tracenet.com
+        image: couchdb:3.2.1
+        environment:
+            - COUCHDB_USER=admin
+            - COUCHDB_PASSWORD=adminpw
+        ports:
+            - 5901:5984
+        networks:
+            - test
+
+    couchdb0.obs0.tracenet.com:
+        container_name: couchdb0.obs0.tracenet.com
+        image: couchdb:3.2.1
+        environment:
+            - COUCHDB_USER=admin
+            - COUCHDB_PASSWORD=adminpw
+        ports:
+            - 5902:5984
+        networks:
+            - test
+
+    couchdb0.prov0.tracenet.com:
+        container_name: couchdb0.prov0.tracenet.com
+        image: couchdb:3.2.1
+        environment:
+            - COUCHDB_USER=admin
+            - COUCHDB_PASSWORD=adminpw
+        ports:
+            - 5903:5984
+        networks:
+            - test
+
+    peer0.obs0.tracenet.com:
+        container_name: peer0.obs0.tracenet.com
+        extends:
+            file: docker-compose-base.yml
+            service: peer-base
+        ports:
+            - 1050:7051
+        networks:
+            - test
+        depends_on:
+            - orderer.${COMPOSE_PROJECT_NAME}.com
+            - crypto.tracenet.com
+            - couchdb0.obs0.tracenet.com
+        environment:
+            - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+            - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb0.obs0.tracenet.com:5984
+            - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=admin
+            - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=adminpw
+
+            - CORE_PEER_ID=peer0.obs0.${PROJECT_NAME}.com
+            - CORE_PEER_ADDRESS=peer0.obs0.${PROJECT_NAME}.com:7051
+            - CORE_PEER_LISTENADDRESS=0.0.0.0:7051
+            - CORE_PEER_CHAINCODEADDRESS=peer0.obs0.${PROJECT_NAME}.com:7052
+            - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7052
+            - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.obs0.${PROJECT_NAME}.com:7051
+            - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.obs0.${PROJECT_NAME}.com:7051
+            - CORE_PEER_LOCALMSPID=obs0MSP
+        volumes:
+            - /var/run/docker.sock:/host/var/run/docker.sock
+            - ../organizations/peerOrganizations/obs0.${PROJECT_NAME}.com/peers/peer0.obs0.${PROJECT_NAME}.com/msp:/etc/hyperledger/fabric/msp
+            - ../organizations/peerOrganizations/obs0.${PROJECT_NAME}.com/peers/peer0.obs0.${PROJECT_NAME}.com/tls:/etc/hyperledger/fabric/tls
+            # - peer0.obs0.${PROJECT_NAME}.com:/var/hyperledger/production
+            # - ../volumes/peer0.obs0.${PROJECT_NAME}.com:/var/hyperledger/production
+
+    peer0.rec0.tracenet.com:
+        container_name: peer0.rec0.tracenet.com
+        extends:
+            file: docker-compose-base.yml
+            service: peer-base
+        ports:
+            - 2050:7051
+        networks:
+            - test
+        depends_on:
+            - orderer.${COMPOSE_PROJECT_NAME}.com
+            - crypto.tracenet.com
+            - couchdb0.rec0.tracenet.com
+        environment:
+            - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+            - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb0.rec0.tracenet.com:5984
+            - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=admin
+            - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=adminpw
+
+            - CORE_PEER_ID=peer0.rec0.${COMPOSE_PROJECT_NAME}.com
+            - CORE_PEER_ADDRESS=peer0.rec0.${COMPOSE_PROJECT_NAME}.com:7051
+            - CORE_PEER_LISTENADDRESS=0.0.0.0:7051
+            - CORE_PEER_CHAINCODEADDRESS=peer0.rec0.${COMPOSE_PROJECT_NAME}.com:7052
+            - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7052
+            - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.rec0.${COMPOSE_PROJECT_NAME}.com:7051
+            - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.rec0.${COMPOSE_PROJECT_NAME}.com:7051
+            - CORE_PEER_LOCALMSPID=rec0MSP
+
+        volumes:
+            - /var/run/docker.sock:/host/var/run/docker.sock
+            - ../organizations/peerOrganizations/rec0.${PROJECT_NAME}.com/peers/peer0.rec0.${PROJECT_NAME}.com/msp:/etc/hyperledger/fabric/msp
+            - ../organizations/peerOrganizations/rec0.${PROJECT_NAME}.com/peers/peer0.rec0.${PROJECT_NAME}.com/tls:/etc/hyperledger/fabric/tls
+            # - peer0.rec0.${PROJECT_NAME}.com:/var/hyperledger/production
+
+    peer0.prov0.tracenet.com:
+        container_name: peer0.prov0.tracenet.com
+        extends:
+            file: docker-compose-base.yml
+            service: peer-base
+        ports:
+            - 3050:7051
+        networks:
+            - test
+        depends_on:
+            - orderer.${COMPOSE_PROJECT_NAME}.com
+            - crypto.tracenet.com
+            - couchdb0.prov0.tracenet.com
+        environment:
+            - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+            - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb0.prov0.tracenet.com:5984
+            - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=admin
+            - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=adminpw
+
+            - CORE_PEER_ID=peer0.prov0.${COMPOSE_PROJECT_NAME}.com
+            - CORE_PEER_ADDRESS=peer0.prov0.${COMPOSE_PROJECT_NAME}.com:7051
+            - CORE_PEER_LISTENADDRESS=0.0.0.0:7051
+            - CORE_PEER_CHAINCODEADDRESS=peer0.prov0.${COMPOSE_PROJECT_NAME}.com:7052
+            - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7052
+            - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.prov0.${COMPOSE_PROJECT_NAME}.com:7051
+            - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.prov0.${COMPOSE_PROJECT_NAME}.com:7051
+            - CORE_PEER_LOCALMSPID=prov0MSP
+
+        volumes:
+            - /var/run/docker.sock:/host/var/run/docker.sock
+            - ../organizations/peerOrganizations/prov0.${PROJECT_NAME}.com/peers/peer0.prov0.${PROJECT_NAME}.com/msp:/etc/hyperledger/fabric/msp
+            - ../organizations/peerOrganizations/prov0.${PROJECT_NAME}.com/peers/peer0.prov0.${PROJECT_NAME}.com/tls:/etc/hyperledger/fabric/tls
+            # - peer0.prov0.${PROJECT_NAME}.com:/var/hyperledger/production

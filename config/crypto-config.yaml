@@ -1,0 +1,47 @@
+OrdererOrgs:
+  - Name: orderer
+    Domain: tracenet.com
+    EnableNodeOUs: true
+    Specs:
+      - Hostname: orderer
+        SANS:
+          - "localhost"
+          - "127.0.0.1"
+          - "0.0.0.0"
+
+PeerOrgs:
+  - Name: rec0
+    Domain: rec0.tracenet.com
+    EnableNodeOUs: true
+    Template:
+      Count: 1
+      SANS:
+        - "localhost"
+        - "127.0.0.1"
+        - "0.0.0.0"
+    Users:
+      Count: 1
+
+  - Name: obs0
+    Domain: obs0.tracenet.com
+    EnableNodeOUs: true
+    Template:
+      Count: 1
+      SANS:
+        - "localhost"
+        - "127.0.0.1"
+        - "0.0.0.0"
+    Users:
+      Count: 1
+
+  - Name: prov0
+    Domain: prov0.tracenet.com
+    EnableNodeOUs: true
+    Template:
+      Count: 1
+      SANS:
+        - "localhost"
+        - "127.0.0.1"
+        - "0.0.0.0"
+    Users:
+      Count: 1

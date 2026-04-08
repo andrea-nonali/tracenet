@@ -1,0 +1,183 @@
+Organizations:
+  - &OrdererOrg
+    Name: ordererMSP
+    ID: ordererMSP
+    MSPDir: ../organizations/ordererOrganizations/tracenet.com/msp
+    Policies:
+      Readers:
+        Type: Signature
+        Rule: "OR('ordererMSP.member')"
+      Writers:
+        Type: Signature
+        Rule: "OR('ordererMSP.member')"
+      Admins:
+        Type: Signature
+        Rule: "OR('ordererMSP.admin')"
+
+
+  - &Rec0
+    Name: rec0MSP
+    ID: rec0MSP
+    MSPDir: ../organizations/peerOrganizations/rec0.tracenet.com/msp
+    Policies:
+      Readers:
+        Type: Signature
+        Rule: "OR('rec0MSP.admin', 'rec0MSP.peer', 'rec0MSP.client')"
+      Writers:
+        Type: Signature
+        Rule: "OR('rec0MSP.admin', 'rec0MSP.client')"
+      Admins:
+        Type: Signature
+        Rule: "OR('rec0MSP.admin')"
+      Endorsement:
+        Type: Signature
+        Rule: "OR('rec0MSP.peer')"
+    OrdererEndpoints:
+      - orderer.tracenet.com:7050
+
+  - &Obs0
+    Name: obs0MSP
+    ID: obs0MSP
+    MSPDir: ../organizations/peerOrganizations/obs0.tracenet.com/msp
+    Policies:
+      Readers:
+        Type: Signature
+        Rule: "OR('obs0MSP.admin', 'obs0MSP.peer', 'obs0MSP.client')"
+      Writers:
+        Type: Signature
+        Rule: "OR('obs0MSP.admin', 'obs0MSP.client')"
+      Admins:
+        Type: Signature
+        Rule: "OR('obs0MSP.admin')"
+      Endorsement:
+        Type: Signature
+        Rule: "OR('obs0MSP.peer')"
+    OrdererEndpoints:
+      - orderer.tracenet.com:7050
+
+  - &Prov0
+    Name: prov0MSP
+    ID: prov0MSP
+    MSPDir: ../organizations/peerOrganizations/prov0.tracenet.com/msp
+    Policies:
+      Readers:
+        Type: Signature
+        Rule: "OR('prov0MSP.admin', 'prov0MSP.peer', 'prov0MSP.client')"
+      Writers:
+        Type: Signature
+        Rule: "OR('prov0MSP.admin', 'prov0MSP.client')"
+      Admins:
+        Type: Signature
+        Rule: "OR('prov0MSP.admin')"
+      Endorsement:
+        Type: Signature
+        Rule: "OR('prov0MSP.peer')"
+    OrdererEndpoints:
+      - orderer.tracenet.com:7050
+
+Capabilities:
+  Channel: &ChannelCapabilities
+    V2_0: true
+  Orderer: &OrdererCapabilities
+    V2_0: true
+  Application: &ApplicationCapabilities
+    V2_0: true
+
+Application: &ApplicationDefaults
+  Organizations:
+  Policies:
+    Readers:
+      Type: ImplicitMeta
+      Rule: "ANY Readers"
+    Writers:
+      Type: ImplicitMeta
+      Rule: "ANY Writers"
+    Admins:
+      Type: ImplicitMeta
+      Rule: "MAJORITY Admins"
+    LifecycleEndorsement:
+      Type: ImplicitMeta
+      Rule: "MAJORITY Endorsement"
+    Endorsement:
+      Type: ImplicitMeta
+      Rule: "MAJORITY Endorsement"
+  Capabilities:
+    <<: *ApplicationCapabilities
+
+Orderer: &OrdererDefaults
+  OrdererType: etcdraft
+  Addresses:
+    - orderer.tracenet.com:7050
+
+  EtcdRaft:
+    Consenters:
+      - Host: orderer.tracenet.com
+        Port: 7050
+        ClientTLSCert: ../organizations/ordererOrganizations/tracenet.com/orderers/orderer.tracenet.com/tls/server.crt
+        ServerTLSCert: ../organizations/ordererOrganizations/tracenet.com/orderers/orderer.tracenet.com/tls/server.crt
+
+  BatchTimeout: 2s
+  BatchSize:
+    MaxMessageCount: 10
+    AbsoluteMaxBytes: 99 MB
+    PreferredMaxBytes: 512 KB
+
+  Organizations:
+  Policies:
+    Readers:
+      Type: ImplicitMeta
+      Rule: "ANY Readers"
+    Writers:
+      Type: ImplicitMeta
+      Rule: "ANY Writers"
+    Admins:
+      Type: ImplicitMeta
+      Rule: "MAJORITY Admins"
+    BlockValidation:
+      Type: ImplicitMeta
+      Rule: "ANY Writers"
+
+Channel: &ChannelDefaults
+  Policies:
+    # Who may invoke the 'Deliver' API
+    Readers:
+      Type: ImplicitMeta
+      Rule: "ANY Readers"
+    # Who may invoke the 'Broadcast' API
+    Writers:
+      Type: ImplicitMeta
+      Rule: "ANY Writers"
+    # Who may modify elements at this config level
+    Admins:
+      Type: ImplicitMeta
+      Rule: "MAJORITY Admins"
+  Capabilities:
+    <<: *ChannelCapabilities
+
+Profiles:
+  TwoOrgsOrdererGenesis:
+    <<: *ChannelDefaults
+    Orderer:
+      <<: *OrdererDefaults
+      Organizations:
+        - *OrdererOrg
+      Capabilities:
+        <<: *OrdererCapabilities
+    Consortiums:
+      SampleConsortium:
+        Organizations:
+          - *Rec0
+          - *Obs0
+          - *Prov0
+
+  TwoOrgsChannel:
+    Consortium: SampleConsortium
+    <<: *ChannelDefaults
+    Application:
+      <<: *ApplicationDefaults
+      Organizations:
+        - *Rec0
+        - *Obs0
+        - *Prov0
+      Capabilities:
+        <<: *ApplicationCapabilities
