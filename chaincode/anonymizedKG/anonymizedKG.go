@@ -98,7 +98,7 @@ func (s *AnonymizedKGSmartContract) ShareAnonymizedKGWithRecipient(ctx contracta
     if anonymizedKG.Verified != true {
         return fmt.Errorf("Anonymized KG %s is not verified by the rollup server", KGId)
     }
-    if anonymizedKG.Shared != true {
+    if anonymizedKG.Shared == true {
         return fmt.Errorf("Anonymized KG %s has been already shared", KGId)
     }
     if recipientId != anonymizedKG.RecipientId {
