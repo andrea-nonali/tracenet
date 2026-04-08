@@ -1,0 +1,126 @@
+name: Fabric test
+version: "1.0"
+
+caliper:
+  blockchain: fabric
+  #sutOptions:
+    #mutualTls: false
+
+channels:
+  mychannel:
+    contracts:
+    - id: campaign
+      language: golang
+      version: "1.0"
+    - id: ownerData
+      language: golang
+      version: "1.0"
+    - id: anonymizedKG
+      language: golang
+      version: "1.0"  
+    created: true
+    orderers:
+    - orderer.tracenet.com
+    peers:
+      peer0.obs0.tracenet.com:
+        chaincodeQuery: true
+        endorsingPeer:  true
+        eventSource:    true
+        ledgerQuery:    true
+      peer0.rec0.tracenet.com:
+        chaincodeQuery: true
+        endorsingPeer:  true
+        eventSource:    true
+        ledgerQuery:    true
+      peer0.prov0.tracenet.com:
+        chaincodeQuery: true
+        endorsingPeer:  true
+        eventSource:    true
+        ledgerQuery:    true
+orderers:
+    orderer.tracenet.com:
+        url: grpcs://0.0.0.0:7050
+        grpcOptions:
+            ssl-target-name-override: orderer.tracenet.com
+        tlsCACerts:
+            path: ../organizations/ordererOrganizations/tracenet.com/orderers/orderer.tracenet.com/msp/tlscacerts/tlsca.tracenet.com-cert.pem
+clients:
+    peer0.obs0.tracenet.com:
+      client:
+          clientPrivateKey:
+              path: ../organizations/peerOrganizations/obs0.tracenet.com/users/Admin@obs0.tracenet.com/msp/keystore/priv_sk
+          clientSignedCert:
+              path: ../organizations/peerOrganizations/obs0.tracenet.com/users/Admin@obs0.tracenet.com/msp/signcerts/Admin@obs0.tracenet.com-cert.pem
+          credentialStore:
+              cryptoStore:
+                  path: ../organizations/peerOrganizations/obs0.tracenet.com/users/Admin@obs0.tracenet.com/msp
+              path: ../organizations/peerOrganizations/obs0.tracenet.com/users/Admin@obs0.tracenet.com/msp/admincerts
+          organization: obs0
+    peer0.rec0.tracenet.com:
+      client:
+          clientPrivateKey:
+              path: ../organizations/peerOrganizations/rec0.tracenet.com/users/Admin@rec0.tracenet.com/msp/keystore/priv_sk
+          clientSignedCert:
+              path: ../organizations/peerOrganizations/rec0.tracenet.com/users/Admin@rec0.tracenet.com/msp/signcerts/Admin@rec0.tracenet.com-cert.pem
+          credentialStore:
+              cryptoStore:
+                  path: ../organizations/peerOrganizations/rec0.tracenet.com/users/Admin@rec0.tracenet.com/msp
+              path: ../organizations/peerOrganizations/rec0.tracenet.com/users/Admin@rec0.tracenet.com/msp/admincerts
+          organization: rec0
+    peer0.prov0.tracenet.com:
+      client:
+          clientPrivateKey:
+              path: ../organizations/peerOrganizations/prov0.tracenet.com/users/Admin@prov0.tracenet.com/msp/keystore/priv_sk
+          clientSignedCert:
+              path: ../organizations/peerOrganizations/prov0.tracenet.com/users/Admin@prov0.tracenet.com/msp/signcerts/Admin@prov0.tracenet.com-cert.pem
+          credentialStore:
+              cryptoStore:
+                  path: ../organizations/peerOrganizations/prov0.tracenet.com/users/Admin@prov0.tracenet.com/msp
+              path: ../organizations/peerOrganizations/prov0.tracenet.com/users/Admin@prov0.tracenet.com/msp/admincerts
+          organization: prov0  
+organizations:
+  obs0:
+      adminPrivateKey:
+          path: ../organizations/peerOrganizations/obs0.tracenet.com/users/Admin@obs0.tracenet.com/msp/keystore/priv_sk
+      mspid: obs0MSP
+      peers:
+        - peer0.obs0.tracenet.com
+      signedCert:
+          path: ../organizations/peerOrganizations/obs0.tracenet.com/users/Admin@obs0.tracenet.com/msp/signcerts/Admin@obs0.tracenet.com-cert.pem
+
+  rec0:
+      adminPrivateKey:
+          path: ../organizations/peerOrganizations/rec0.tracenet.com/users/Admin@rec0.tracenet.com/msp/keystore/priv_sk
+      mspid: rec0MSP
+      peers:
+        - peer0.rec0.tracenet.com
+      signedCert:
+          path: ../organizations/peerOrganizations/rec0.tracenet.com/users/Admin@rec0.tracenet.com/msp/signcerts/Admin@rec0.tracenet.com-cert.pem
+
+  prov0:
+      adminPrivateKey:
+          path: ../organizations/peerOrganizations/prov0.tracenet.com/users/Admin@prov0.tracenet.com/msp/keystore/priv_sk
+      mspid: prov0MSP
+      peers:
+        - peer0.prov0.tracenet.com
+      signedCert:
+          path: ../organizations/peerOrganizations/prov0.tracenet.com/users/Admin@prov0.tracenet.com/msp/signcerts/Admin@prov0.tracenet.com-cert.pem
+peers:
+    peer0.obs0.tracenet.com:
+        grpcOptions:
+            ssl-target-name-override: peer0.obs0.tracenet.com
+        tlsCACerts:
+            path: ../organizations/peerOrganizations/obs0.tracenet.com/tlsca/tlsca.obs0.tracenet.com-cert.pem
+        url: grpcs://0.0.0.0:1050
+    peer0.rec0.tracenet.com:
+        grpcOptions:
+            ssl-target-name-override: peer0.rec0.tracenet.com
+        tlsCACerts:
+            path: ../organizations/peerOrganizations/rec0.tracenet.com/tlsca/tlsca.rec0.tracenet.com-cert.pem
+        url: grpcs://0.0.0.0:2050
+    peer0.prov0.tracenet.com:
+        grpcOptions:
+            ssl-target-name-override: peer0.prov0.tracenet.com
+        tlsCACerts:
+            path: ../organizations/peerOrganizations/prov0.tracenet.com/tlsca/tlsca.prov0.tracenet.com-cert.pem
+        url: grpcs://0.0.0.0:3050

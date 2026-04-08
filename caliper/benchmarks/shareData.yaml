@@ -1,0 +1,153 @@
+test:
+  name: basic test
+  workers:
+    type: local
+    number: 1
+  rounds: 
+    - label: Share Data (2000:10)
+      txNumber: 2000
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 10
+      workload:
+        module: workload/shareData.js
+        arguments:
+          assets: 500
+          max: 10
+          min: 3
+          tx: 2000
+          contractId: ownerData
+    - label: Share Data (2000:20)
+      txNumber: 2000
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 20
+      workload:
+        module: workload/shareData.js
+        arguments:
+          assets: 500
+          max: 10
+          min: 3
+          tx: 2000
+          contractId: ownerData
+    - label: Share Data (2000:30)
+      txNumber: 2000
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 30
+      workload:
+        module: workload/shareData.js
+        arguments:
+          assets: 500
+          max: 10
+          min: 3
+          tx: 2000
+          contractId: ownerData
+    - label: Share Data (2000:40)
+      txNumber: 2000
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 40
+      workload:
+        module: workload/shareData.js
+        arguments:
+          assets: 500
+          max: 10
+          min: 3
+          tx: 2000
+          contractId: ownerData
+    - label: Share Data (2000:50)
+      txNumber: 2000
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 50
+      workload:
+        module: workload/shareData.js
+        arguments:
+          assets: 500
+          max: 10
+          min: 3
+          tx: 2000
+          contractId: ownerData
+    - label: Share Data (2000:60)
+      txNumber: 2000
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 60
+      workload:
+        module: workload/shareData.js
+        arguments:
+          assets: 500
+          max: 10
+          min: 3
+          tx: 2000
+          contractId: ownerData
+    - label: Share Data (2000:70)
+      txNumber: 2000
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 70
+      workload:
+        module: workload/shareData.js
+        arguments:
+          assets: 500
+          max: 10
+          min: 3
+          tx: 2000
+          contractId: ownerData        
+    - label: Share Data (2000:80)
+      txNumber: 2000
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 80
+      workload:
+        module: workload/shareData.js
+        arguments:
+          assets: 500
+          max: 10
+          min: 3
+          tx: 2000
+          contractId: ownerData
+    - label: Share Data (2000:90)
+      txNumber: 2000
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 90
+      workload:
+        module: workload/shareData.js
+        arguments:
+          assets: 500
+          max: 10
+          min: 3
+          tx: 2000
+          contractId: ownerData
+    - label: Share Data (2000:100)
+      txNumber: 2000
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 100
+      workload:
+        module: workload/shareData.js
+        arguments:
+          assets: 500
+          max: 10
+          min: 3
+          tx: 2000
+          contractId: ownerData
+monitor:
+  type:
+  - none
+
+observer:
+  type: local
+  interval: 5
